@@ -10,7 +10,7 @@ public class App {
         UIManager.put("OptionPane.messageFont", new Font("Arial", Font.PLAIN, 14));
 
         ImageIcon icon = new ImageIcon(
-                "C:\\Users\\braya\\IdeaProjects\\TALLER-4\\src\\main\\java\\com\\brayanvargas\\resources\\guayaba.png");
+                "src/main/java/com/brayanvargas/resources/guayaba.png");
 
         String[] opciones = {"Jugar", "Ver instrucciones", "Salir"};
         Guayabita guayabita = new Guayabita();

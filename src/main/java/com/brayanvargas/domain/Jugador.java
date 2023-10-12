@@ -3,23 +3,24 @@ package com.brayanvargas.domain;
 import javax.swing.*;
 
 public class Jugador {
-   String nombreJugador;
-   int presupuesto;
-   int apuesta;
+   private String nombreJugador;
+   private int presupuesto;
+   private int apuesta;
+   private int dadoAnterior;
 
 
    public Jugador(int jugador) {
-      this.nombreJugador = JOptionPane.showInputDialog(null, "Nombre del jugador " + jugador);
-      this.presupuesto = Integer.parseInt(JOptionPane.showInputDialog(null, "Presupuesto del jugador" + jugador));
-
+      this.nombreJugador = "Jugador " + jugador;
+      this.apuesta = 500;
+      this.dadoAnterior = 0;
    }
 
-   public void ganaJuego(){
-
+   public void incrementarPresupuesto(int monto) {
+      presupuesto += monto;
    }
 
-   public void pierdeJuego(){
-
+   public void decrementarPresupuesto(int monto) {
+      presupuesto -= monto;
    }
 
    public String getNombreJugador() {
@@ -38,5 +39,20 @@ public class Jugador {
       this.apuesta = apuesta;
    }
 
+   public int getDadoAnterior() {
+      return dadoAnterior;
+   }
+
+   public void setDadoAnterior(int dadoAnterior) {
+      this.dadoAnterior = dadoAnterior;
+   }
+
+   public void setNombreJugador(String nombreJugador) {
+      this.nombreJugador = nombreJugador;
+   }
+
+   public void setPresupuesto(int presupuesto) {
+      this.presupuesto = presupuesto;
+   }
 
 }

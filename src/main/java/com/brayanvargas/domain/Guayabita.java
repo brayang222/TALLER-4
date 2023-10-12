@@ -4,92 +4,172 @@ import javax.swing.*;
 import java.util.Random;
 
 public class Guayabita {
-   int dado;
-   int poteTiene;
-   int numeroJugadores;
-   int jugadorActual = 1;
-
-   Jugador[] jugadores;
+   private int dado = 0;
+   private int poteTiene;
+   private int numeroJugadores;
+   private int jugadorActual = 0;
+   private Jugador[] jugadores;
+   private Random random = new Random();
 
    public Guayabita() {
+      this.poteTiene = 0;
    }
 
    public void inicializarJuego() {
       this.numeroJugadores = Integer.parseInt(JOptionPane.showInputDialog(null,
             "Cuantos usuarios jugaran"));
       this.jugadores = new Jugador[numeroJugadores];
-      System.out.println(numeroJugadores);
+
+      generarJugadores();
    }
 
-   public void generarJugadores(){
-      for (int i = 0; i < numeroJugadores; i++){
-         jugadores[i] = new Jugador(jugadorActual);
-         System.out.println("nombre jugador" + jugadorActual );
-         System.out.println("presupuesto jugador" );
-
-         jugadorActual++;
+   public void generarJugadores() {
+      for (int i = 0; i < numeroJugadores; i++) {
+         jugadores[i] = new Jugador(i + 1);
+         jugadores[i].setPresupuesto(obtenerPresupuesto());
+         poteTiene += 500;
       }
    }
 
-   public void tirarDados(){
-      Random random = new Random();
-      int resultadoDados = random.nextInt(6) + 1; // Genera un número aleatorio entre 1 y 6
-
-      String[] opciones = {"Tirar dado", "No apostar"};
-
-         JOptionPane.showMessageDialog(
-               null,
-               "Resultado del dado: " + resultadoDados,
-               "Resultado del Dado",
-               JOptionPane.INFORMATION_MESSAGE
-         );
+   public int obtenerResultadoDados() {
+      return random.nextInt(6) + 1;
    }
 
-   public void avanzarTurno() {
-      jugadorActual = (jugadorActual + 1) % numeroJugadores;
-      if (jugadorActual < 0) {
-         jugadorActual = numeroJugadores - 1; // Vuelve al último jugador si llega al final
+   public int obtenerApuesta(Jugador jugador) {
+      int apuesta = 0;
+      boolean apuestaValida = false;
+
+      while (!apuestaValida) {
+         String input = JOptionPane.showInputDialog(null, "Ingresa la cantidad que deseas apostar " +
+               "(su presupuesto es:" + jugador.getPresupuesto() + ") y el presupuesto del pote es: " + getPoteTiene());
+
+         try {
+            apuesta = Integer.parseInt(input);
+            if (apuesta >= 1 && apuesta <= jugador.getPresupuesto() && apuesta <= poteTiene) {
+               apuestaValida = true;
+            } else {
+               JOptionPane.showMessageDialog(null, "Apuesta no valida. Debes apostar un valor entre 1 y tu presupuesto actual.");
+            }
+         } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Ingresa un valor numerico valido.");
+         }
       }
+
+      return apuesta;
    }
+
+   public int obtenerPresupuesto() {
+      int presupuesto = 0;
+      boolean presupuestoValido = false;
+
+      Jugador jugador = jugadores[jugadorActual];
+      jugadorActual = (jugadorActual + 1) % jugadores.length;
+
+      while (!presupuestoValido) {
+         String input = JOptionPane.showInputDialog(null, "Ingresa el presupuesto del "
+               + jugador.getNombreJugador());
+
+         try {
+            presupuesto = Integer.parseInt(input);
+            if (presupuesto >= 550) {
+               presupuestoValido = true;
+            } else {
+               JOptionPane.showMessageDialog(null, "Presupuesto no valido. Debe ser un valor mayor o igual a 550. \n" +
+                     "Para que aportes los 500 para ingresar y tengas minimo 50 para apostar");
+            }
+         } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Ingresa un valor numerico valido.");
+         }
+      }
+
+      return presupuesto;
+   }
+
 
 
    public void jugar() {
-      generarJugadores();
-      boolean juegoActivo = true; // Variable para controlar si el juego está activo
+      boolean juegoActivo = true;
+      boolean alguienGano = false;
+      int jugadorGanadorPote = -1;
 
       while (juegoActivo) {
          Jugador jugador = jugadores[jugadorActual];
          JOptionPane.showMessageDialog(null, "Turno de " + jugador.getNombreJugador());
 
-         // Mostrar las opciones "Tirar dado" y "No apostar"
-         String[] opciones = {"Tirar dado", "No apostar"};
-         int respuesta = JOptionPane.showOptionDialog(
-               null,
-               "¿Qué deseas hacer?",
-               "Tirar Dado",
-               JOptionPane.DEFAULT_OPTION,
-               JOptionPane.QUESTION_MESSAGE,
-               null,
-               opciones,
-               opciones[0]
-         );
+         int resultadoDados = obtenerResultadoDados();
+         String mensaje = "Resultado del dado: " + resultadoDados;
+         ImageIcon iconoDado = new ImageIcon("src/main/java/com/brayanvargas/resources/dado" + resultadoDados + ".png");
+         JOptionPane.showMessageDialog(null, mensaje, "Resultado del Dado", JOptionPane.PLAIN_MESSAGE, iconoDado);
 
-         if (respuesta == 0) {
-            tirarDados();
-            avanzarTurno();
+         // Verificar si el jugador puede apostar
+         if (resultadoDados != 1 && resultadoDados != 6) {
+            boolean quiereApostar = JOptionPane.showConfirmDialog(
+                  null,
+                  "Deseas apostar?",
+                  "Apostar",
+                  JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
 
-            // Aquí debes agregar la lógica para verificar si el juego debe continuar o finalizar
-            // Por ejemplo, si el pote está vacío o si solo queda un jugador con dinero
-            if (poteTiene <= 0 || quedanJugadoresConDinero()) {
-               juegoActivo = false; // El juego se detiene
+            if (quiereApostar) {
+               int apuesta = obtenerApuesta(jugador);
+               int resultadoSegundaTirada = obtenerResultadoDados();
+               ImageIcon iconoDadoSegunda = new ImageIcon("src/main/java/com/brayanvargas/resources/dado" + resultadoSegundaTirada + ".png");
+               JOptionPane.showMessageDialog(null, mensaje, "Resultado del Dado", JOptionPane.PLAIN_MESSAGE, iconoDadoSegunda);
+
+               // Verificar si el jugador gana o pierde la apuesta
+               if (resultadoSegundaTirada > resultadoDados) {
+                  jugador.incrementarPresupuesto(apuesta);
+                  poteTiene -= apuesta;
+                  JOptionPane.showMessageDialog(null, "Ganaste!");
+               } else {
+                  poteTiene += apuesta;
+                  jugador.decrementarPresupuesto(apuesta);
+                  JOptionPane.showMessageDialog(null, "Perdiste!");
+               }
             }
-         } else {
-            avanzarTurno();
          }
+
+         if (jugador.getPresupuesto() <= 0) {
+            JOptionPane.showMessageDialog(null, jugador.getNombreJugador() +
+                  " se quedo sin fondos y ha sido eliminado del juego.");
+            eliminarJugador(jugadorActual);
+         }
+
+         if (!quedanJugadoresConDinero() || poteTiene <= 0) {
+            juegoActivo = false;
+         } else {
+            jugadorActual = (jugadorActual + 1) % jugadores.length;
+         }
+      }
+
+      for (int i = 0; i < jugadores.length; i++) {
+         if (jugadores[i].getPresupuesto() > 0) {
+            alguienGano = true;
+            break;
+         }
+      }
+
+      if (alguienGano && poteTiene <= 0) {
+         Jugador jugador = jugadores[jugadorActual];
+         JOptionPane.showMessageDialog(null, jugador.getNombreJugador() + " gano el pote.");
+      } else if (alguienGano) {
+         JOptionPane.showMessageDialog(null, "Gano la casa!");
       }
    }
 
-   // Agrega este método para verificar si quedan jugadores con dinero
+   private void eliminarJugador(int indice) {
+      Jugador[] nuevosJugadores = new Jugador[jugadores.length - 1];
+      int contador = 0;
+      for (int i = 0; i < jugadores.length; i++) {
+         if (i != indice) {
+            nuevosJugadores[contador] = jugadores[i];
+            contador++;
+         }
+      }
+      jugadores = nuevosJugadores;
+      numeroJugadores--;
+      jugadorActual = jugadorActual % numeroJugadores;
+   }
+
    private boolean quedanJugadoresConDinero() {
       for (Jugador jugador : jugadores) {
          if (jugador.getPresupuesto() > 0) {
@@ -97,6 +177,25 @@ public class Guayabita {
          }
       }
       return false;
+   }
+
+   public void mostrarDado(int resultado) {
+      String mensaje = "Resultado del dado: " + resultado;
+      ImageIcon iconoDado = null;
+
+      try {
+         // Intenta cargar la imagen
+         if (resultado >= 1 && resultado <= 6) {
+            iconoDado = new ImageIcon("src/main/java/com/brayanvargas/resources/dado" + resultado + ".png");
+         }
+      } catch (Exception e) {
+         // Manejo de excepciones en caso de error al cargar la imagen
+         JOptionPane.showMessageDialog(null, "Error al cargar la imagen del dado: " + e.getMessage());
+      }
+
+      if (iconoDado != null) {
+
+      }
    }
 
    public void instrucciones(){
@@ -117,5 +216,31 @@ public class Guayabita {
                   "no quede dinero en el pote y debera mostrar la cantidad de dinero con la que quedo cada usuario. \n");
    }
 
+   public int getDado() {
+      return dado;
+   }
 
+   public int getPoteTiene() {
+      return poteTiene;
+   }
+
+   public int getNumeroJugadores() {
+      return numeroJugadores;
+   }
+
+   public int getJugadorActual() {
+      return jugadorActual;
+   }
+
+   public Jugador[] getJugadores() {
+      return jugadores;
+   }
+
+   public void setDado(int dado) {
+      this.dado = dado;
+   }
+
+   public void setPoteTiene(int poteTiene) {
+      this.poteTiene = poteTiene;
+   }
 }
