@@ -179,25 +179,6 @@ public class Guayabita {
       return false;
    }
 
-   public void mostrarDado(int resultado) {
-      String mensaje = "Resultado del dado: " + resultado;
-      ImageIcon iconoDado = null;
-
-      try {
-         // Intenta cargar la imagen
-         if (resultado >= 1 && resultado <= 6) {
-            iconoDado = new ImageIcon("src/main/java/com/brayanvargas/resources/dado" + resultado + ".png");
-         }
-      } catch (Exception e) {
-         // Manejo de excepciones en caso de error al cargar la imagen
-         JOptionPane.showMessageDialog(null, "Error al cargar la imagen del dado: " + e.getMessage());
-      }
-
-      if (iconoDado != null) {
-
-      }
-   }
-
    public void instrucciones(){
       JOptionPane.showMessageDialog(null,
             "Si el jugador saca 1 o 6 entonces pierde la posibilidad de apostar y por ende cede el turno" +
