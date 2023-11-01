@@ -90,7 +90,6 @@ public class Guayabita {
    public void jugar() {
       boolean juegoActivo = true;
       boolean alguienGano = false;
-      int jugadorGanadorPote = -1;
 
       while (juegoActivo) {
          Jugador jugador = jugadores[jugadorActual];
